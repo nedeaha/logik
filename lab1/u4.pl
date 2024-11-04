@@ -1,14 +1,16 @@
 /*
     a - d - e
-   / \
-  b - c  
+   / \     /
+  b - c - f
 */
 % Define edges
 edge(a, b).
 edge(a, c).
 edge(a, d).
 edge(b, c).
+edge(c, f).
 edge(d, e).
+edge(e, f).
 
 %Ser till att noderna är connected i båda riktningarna
 connected(X, Y) :- edge(X, Y); edge(Y, X).

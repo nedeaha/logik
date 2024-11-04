@@ -1,0 +1,9 @@
+[p, q].
+
+and(p, q).
+
+[
+    [1, p, premise],
+    [2, q, premise],
+    [3, and(p, q), andin(1, 2)]
+].
