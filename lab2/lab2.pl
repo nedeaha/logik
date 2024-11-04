@@ -26,3 +26,6 @@ andint(X, Y) :- line(X, R1, _), line(Y, R2, _), and(R1, R2).
 
 %Alla formler
 and(P, Q) :- P, Q.
+
+
+%wwsssss
