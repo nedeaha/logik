@@ -1,0 +1,1 @@
+eqthree(A, A, A).
