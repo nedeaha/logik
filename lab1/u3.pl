@@ -19,3 +19,5 @@ consecutive([_]).                  % A single element is trivially consecutive.
 consecutive([X, Y | Rest]) :-      % For two or more elements, ensure they are consecutive
     Y is X + 1,                    % Ensure X and Y are consecutive
     consecutive([Y | Rest]).       % Recursively check the rest of the list
+
+% partstring([1,2,3,4], L, F).

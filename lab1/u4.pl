@@ -28,3 +28,6 @@ path(X, Y, [Z|R], Visited) :-
 find_path(X, Y, Path) :-
     path(X, Y, Path, [X]).
 
+
+    % find_path(a, e, Path).
+

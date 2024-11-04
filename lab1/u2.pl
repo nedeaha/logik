@@ -10,3 +10,4 @@ remove_duplicates([H|T], [H|R]) :-
 remove_duplicates([H|T], R) :-
     remove_duplicates(T, R). %Rekursivt går vidare genom hela listan.
 
+% remove_duplicates([1,2,3,2,4,1,3,4], E).
