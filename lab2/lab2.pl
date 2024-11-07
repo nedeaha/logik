@@ -12,18 +12,18 @@ valid_proof(Prems, Goal, Proof, [H|T]) :-
     valid_proof(Prems, Goal, Proof, T),
     apply_rule(H, Prems, Proof).
 
-proof_goal_match(Goal, [_, Goal, _]).
+proof_goal_match(Goal, [_, Goal, M]) :- \+(M==assumption).
 
 apply_rule([H1, H2, H3|_], Prems, Proof) :-
     (H3==premise, premise(H2, Prems));
-    (H3==assumption, assumption(H2, Prems));
+    (H3==assumption, assumption(Proof));
     (H3=copy(X), H1>X, copy(X, H2, Proof));
     (H3=andint(X, Y), H1>X, H1>Y, andint(X, Y, H2, Proof));
     (H3=andel1(X), H1>X, andel1(X, H2, Proof));
     (H3=andel2(X), H1>X, andel2(X, H2, Proof));
     (H3=orint1(X), H1>X, orint1(X, H2, Proof));
     (H3=orint2(X), H1>X, orint2(X, H2, Proof));
-
+    %(H3=orel(X, Y, U, V, W))
     (H3=impint(X, Y), H1>X, H1>Y, impint(X, Y, H2, Proof));
     (H3=impel(X, Y), H1>X, H1>Y, impel(X, Y, H2, Proof));
     (H3=negint(X, Y), H1>X, H1>Y, negint(X, Y, H2, Proof));
@@ -36,20 +36,28 @@ apply_rule([H1, H2, H3|_], Prems, Proof) :-
     (H3==lem, lem(H2)).
 
 %idk om detta funkar
-apply_rule([[_|_]|_], _, _).
+apply_rule(Box, Prems, Proof) :-
+
+    last(Box, [_, Goal, _]),
+    valid_proof(Goal, Prems, New_proof, Box).
+
+% Helper function to constuct a proof.
+append_n_elements(0, _, Target, Target). % if n=0, return target
+append_n_elements()
 
 %Alla regler
 premise(H2, Prems) :- 
     member(H2, Prems).
 
-assumption(H2, Prems) :-
-    H2==Prems.
+assumption(Proof) :-
+    nth1(1, Proof, [_, _, assumption]).
 
 copy(X, P, Proof) :- 
     member([X, P, _], Proof).
 
 andint(X, Y, and(P, Q), Proof) :- 
-    member([X, P, _], Proof), member([Y, Q, _], Proof).
+    member([X, P, _], Proof), 
+    member([Y, Q, _], Proof).
 
 andel1(X, P, Proof) :- 
     member([X, and(P, _), _], Proof).
@@ -67,20 +75,27 @@ orint2(X, or(_, Q), Proof) :-
 
 %kanske inte klar
 impint(X, Y, imp(P, Q), Proof) :- 
-    nth1(X, Proof, Box), valid_proof(P, Q, Proof, Box).
+    nth1(X, Proof, Box),
+    member([X, P, assumption], Box),
+    member([Y, Q, _], Box).
+
 
 impel(X, Y, Q, Proof) :- 
-    member([Y, imp(P, Q), _], Proof), member([X, P, _], Proof).
+    member([Y, imp(P, Q), _], Proof), 
+    member([X, P, _], Proof).
 
 %kanske inte klar
 negint(X, Y, neg(P), Proof) :-
-    nth1(X, Proof, Box), valid_proof(P, cont, Proof, Box).
+    nth1(X, Proof, Box), 
+    member([X, P, assumption], Box),
+    member([Y, cont, _], Box).
 
 negel(X, Y, Proof) :- 
-    member([X, P, _], Proof), member([Y, neg(P), _], Proof).
+    member([X, P, _], Proof), 
+    member([Y, neg(P), _], Proof).
 
 contel(X, Proof) :- 
-    member([X, C, _], Proof), C==cont.
+    member([X, cont, _], Proof).
 
 negnegint(X, neg(neg(P)), Proof) :- 
     member([X, P, _], Proof).
@@ -89,11 +104,14 @@ negnegel(X, P, Proof) :-
     member([X, neg(neg(P)), _], Proof). 
 
 mt(X, Y, neg(P), Proof) :- 
-    member([Y, or(P, Q), _], Proof), member([X, neg(Q), _], Proof).
+    member([Y, or(P, Q), _], Proof), 
+    member([X, neg(Q), _], Proof).
 
 %kanske inte klar
 pbc(X, Y, P, Proof) :-
-    nth1(X, Proof, Box), valid_proof(neg(P), cont, Proof, Box).
+    nth1(X, Proof, Box),
+    member([X, neq(P), assumption], Box),
+    member([Y, cont, _], Box).
 
 lem(or(P, neg(P))).
 
