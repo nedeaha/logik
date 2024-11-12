@@ -12,7 +12,7 @@ valid_proof(Prems, Goal, Proof, [H|T]) :-
     valid_proof(Prems, Goal, Proof, T),
     apply_rule(H, Prems, Proof).
 
-proof_goal_match(Goal, [_, Goal, M]).
+proof_goal_match(Goal, [_, Goal, _]).
 
 apply_rule([H1, H2, Line_Rule|_], Prems, Proof) :-
     (Line_Rule==premise, premise(H2, Prems));
@@ -23,7 +23,7 @@ apply_rule([H1, H2, Line_Rule|_], Prems, Proof) :-
     (Line_Rule=andel2(X), H1>X, andel2(X, H2, Proof));
     (Line_Rule=orint1(X), H1>X, orint1(X, H2, Proof));
     (Line_Rule=orint2(X), H1>X, orint2(X, H2, Proof));
-    %(Line_Rule=orel(X, Y, U, V, W))
+    (Line_Rule=orel(X, Y, U, V, W), H1>X, H1>Y, H1>U, H1>V, H1>W, orel(X, Y, U, V, W, H2, Proof));
     (Line_Rule=impint(X, Y), H1>X, H1>Y, impint(X, Y, H2, Proof));
     (Line_Rule=impel(X, Y), H1>X, H1>Y, impel(X, Y, H2, Proof));
     (Line_Rule=negint(X, Y), H1>X, H1>Y, negint(X, Y, H2, Proof));
@@ -61,7 +61,7 @@ premise(H2, Prems) :-
 assumption(H2, Proof, Prems) :-
     nth1(1, Proof, [_, _, assumption]),
     % make sure the assumption starts a box
-    write(H2),
+    %write(H2),
     member(H2, Prems).
 
 copy(X, P, Proof) :- 
@@ -83,14 +83,21 @@ orint1(X, or(P, _), Proof) :-
 orint2(X, or(_, Q), Proof) :- 
     member([X, Q, _], Proof). 
 
-% orel(X, Y, U, V, W) :-
+orel(X, Y, U, V, W, Slay, Proof) :-
+    member([X, or(P, Q), _], Proof),
+    member([[Y, P, assumption]|T1], Proof),
+    append([[Y, P, assumption]], T1, Box1),
+    member([U, Slay, _], Box1),
+    member([[V, Q, assumption]|T2], Proof),
+    append([[V, Q, assumption]], T2, Box2),
+    member([W, Slay, _], Box2).
+
 
 %kanske inte klar
 impint(X, Y, imp(P, Q), Proof) :- 
-    nth1(X, Proof, Box),
-    member([X, P, assumption], Box),
+    member([[X, P, assumption]|T], Proof),
+    append([[X, P, assumption]], T, Box),
     member([Y, Q, _], Box).
-
 
 impel(X, Y, Q, Proof) :- 
     member([Y, imp(P, Q), _], Proof), 
@@ -98,8 +105,8 @@ impel(X, Y, Q, Proof) :-
 
 %kanske inte klar
 negint(X, Y, neg(P), Proof) :-
-    nth1(X, Proof, Box), 
-    member([X, P, assumption], Box),
+    member([[X, P, assumption]|T], Proof),
+    append([[X, P, assumption]], T, Box),
     member([Y, cont, _], Box).
 
 negel(X, Y, Proof) :- 
@@ -121,8 +128,8 @@ mt(X, Y, neg(P), Proof) :-
 
 %kanske inte klar
 pbc(X, Y, P, Proof) :-
-    nth1(X, Proof, Box),
-    member([X, neq(P), assumption], Box),
+    member([[X, neg(P), assumption]|T], Proof),
+    append([[X, neg(P), assumption]], T, Box),
     member([Y, cont, _], Box).
 
 lem(or(P, neg(P))).
