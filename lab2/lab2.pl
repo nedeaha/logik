@@ -123,8 +123,8 @@ negnegel(X, P, Proof) :-
     member([X, neg(neg(P)), _], Proof). 
 
 mt(X, Y, neg(P), Proof) :- 
-    member([Y, or(P, Q), _], Proof), 
-    member([X, neg(Q), _], Proof).
+    member([X, imp(P, Q), _], Proof), 
+    member([Y, neg(Q), _], Proof).
 
 %kanske inte klar
 pbc(X, Y, P, Proof) :-
