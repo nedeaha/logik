@@ -50,7 +50,7 @@ append_previous_lines(1, _, Box, Box).
 append_previous_lines(Line, Proof, Box, New_proof) :-
     New_line is Line - 1,
     nth1(New_line, Proof, Line_to_add),
-    append(Box, [Line_to_add], New_box),
+    append([Line_to_add], Box, New_box),
     append_previous_lines(New_line, Proof, New_box, New_proof).
 
 
@@ -59,13 +59,12 @@ premise(H2, Prems) :-
     member(H2, Prems).
 
 assumption(H2, Proof, Prems) :-
-    nth1(1, Proof, [_, _, assumption]),
-    % make sure the assumption starts a box
-    %write(H2),
+    \+ length(Proof, 1),
     member(H2, Prems).
 
 copy(X, P, Proof) :- 
-    member([X, P, _], Proof).
+    member([X, P, Q], Proof),
+    \+ Q==assumption.
 
 andint(X, Y, and(P, Q), Proof) :- 
     member([X, P, _], Proof), 
